@@ -1,0 +1,95 @@
+service:
+  name: api-aws
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true   
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  
+
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+  
+    PRODUCTS_TABLE: Products-${self:provider.stage}
+
+functions:
+  
+  CreateProduct:
+    handler: src/lambda/http/createProduct.handler
+    events:
+      - http:
+          method: post
+          path: products
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}
+  GetProducts:
+    handler: src/lambda/http/getProducts.handler
+    events:
+    - http:
+        method: get
+        path: products
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - dynamodb:Scan
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}
+  UpdateProduct:
+    handler: src/lambda/http/updateProduct.handler
+    events:
+    - http:
+        method: patch
+        path: products/{id}
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - dynamodb:UpdateItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}
+  DeleteProduct:
+    handler: src/lambda/http/deleteProduct.handler
+    events:
+    - http:
+        method: delete
+        path: products/{id}
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}
+      
+  getStarWars:
+    handler: src/lambda/api/starWars/getPeople.handler
+    events:
+    - http:
+        method: get
+        path: getPeople
+
+resources: # CloudFormation template syntax
+  Resources: 
+    ProductsDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PRODUCTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        # AWS Free tier
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
