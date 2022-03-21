@@ -1,8 +1,6 @@
-import 'source-map-support/register'
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 const axios = require("axios");
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (event) => {
   const data = await axios
     .get("https://swapi.py4e.com/api/people")
       .catch((err) => {

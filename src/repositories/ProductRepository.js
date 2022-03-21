@@ -1,24 +1,23 @@
-import * as AWS  from 'aws-sdk'
-import { DocumentClient } from 'aws-sdk/clients/dynamodb'
+const AWS  = require('aws-sdk');
 
-import { Product } from '../models/Product'
-
-export default class ProductRepository {
+class ProductRepository {
 
   constructor(
-    private readonly docClient: DocumentClient = createDynamoDBClient(),
-    private readonly productTable = process.env.PRODUCTS_TABLE) {
+    docClient = createDynamoDBClient(),
+    productTable = process.env.PRODUCTS_TABLE) {
+      this.docClient = docClient;
+      this.productTable = productTable;
   }
   
-  async getAllProducts(): Promise<Product[]> {
+  async getAllProducts() {
     const result = await this.docClient.scan({
       TableName: this.productTable
     }).promise()
 
-    return result.Items as Product[]
+    return result.Items;
   }
 
-  async createProduct(product: Product): Promise<Product> {
+  async createProduct(product){
     await this.docClient.put({
       TableName: this.productTable,
       Item: product
@@ -27,7 +26,7 @@ export default class ProductRepository {
     return product
   }
   
-  async updateProduct(partialProduct: Partial<Product>): Promise<Product> {
+  async updateProduct(partialProduct){
     const updated = await this.docClient.update({
       TableName: this.productTable,
       Key: { 'id': partialProduct.id },
@@ -42,10 +41,10 @@ export default class ProductRepository {
       ReturnValues: 'ALL_NEW'
     }).promise()
     
-    return updated.Attributes as Product
+    return updated.Attributes;
   }
   
-  async deleteProductById(id: string) {
+  async deleteProductById(id) {
     return this.docClient.delete({
       TableName: this.productTable,
       Key: { 'id': id }
@@ -63,3 +62,4 @@ function createDynamoDBClient() {
 
   return new AWS.DynamoDB.DocumentClient()
 }
+module.exports = ProductRepository;

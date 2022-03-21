@@ -1,5 +1,5 @@
 service:
-  name: serverless-lambda
+  name: serverless-lambda2
 
 custom:
   webpack:
@@ -13,14 +13,12 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
-
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   
 
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-  
     PRODUCTS_TABLE: Products-${self:provider.stage}
 
 functions:
