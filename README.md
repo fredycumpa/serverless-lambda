@@ -1,37 +1,54 @@
-# Serverless - AWS Node.js Typescript
+# Serverless CRUD
 
-This project has been generated using the `aws-nodejs-typescript` template from the [Serverless framework](https://www.serverless.com/).
+Serverless service which provides a basic CRUD .
 
-For detailed instructions, please refer to the [documentation](https://www.serverless.com/framework/docs/providers/aws/).
+## Installation
 
-### Locally
+Make sure that you use Serverless v1.
 
-In order to test the hello function locally, run the following command:
+1. Run `serverless install --url https://github.com/fredycumpa/serverless-lambda.git` to install the service in your current working directory
+2. Next up cd into the service with `cd serverless-lambda`
+3. Run `npm install`
+3. Configure sls to use our AWS Credentials `sls config credentials --provider aws --key YOUR_ACCESS_KEY --secret YOUR_SECRET_KEY --profile YOUR_AWS_PROFILE`
+4. Deploy with `sls deploy -v --aws-profile YOUR_AWS_PROFILE`
 
-- `npx sls invoke local -f hello --path src/functions/hello/mock.json` if you're using NPM
-- `yarn sls invoke local -f hello --path src/functions/hello/mock.json` if you're using Yarn
+## How to use
 
-Check the [sls invoke local command documentation](https://www.serverless.com/framework/docs/providers/aws/cli-reference/invoke-local/) for more information.
+Simply perform requests against the exposed endpoints:
 
-### plugin
+### Create
 
-Added the plugin serverless-iam-roles-per-function to specify the resources that every function has access to (since we don’t want to give access to every resource we have.
-
-```
-npm install — save-dev serverless-iam-roles-per-function
-```
-
-
-### Deploy
-
-Configure sls to use our AWS Credentials.
-
-```
-sls config credentials --provider aws --key YOUR_ACCESS_KEY --secret YOUR_SECRET_KEY --profile YOUR_AWS_PROFILE
+```bash
+curl -X POST https://XXXX.execute-api.region.amazonaws.com/dev/products --data '{ "name" : "product }'
 ```
 
-Deploy to AWS.
+### Read all
 
+
+```bash
+curl https://XXXX.execute-api.region.amazonaws.com/dev/products
 ```
-sls deploy -v --aws-profile YOUR_AWS_PROFILE
+
+### Read one
+
+```bash
+curl https://XXXX.execute-api.region.amazonaws.com/dev/products/<id>
 ```
+
+### Update
+
+```bash
+curl -X PUT https://XXXX.execute-api.region.amazonaws.com/dev/products/<id> --data '{ "name" : "producto 2" }'
+```
+
+### DELETE
+
+```bash
+curl -X DELETE https://XXXX.execute-api.region.amazonaws.com/dev/products/<id>
+```
+
+## AWS services used
+
+- Lambda
+- API Gateway
+- DynamoDB
